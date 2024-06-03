@@ -1,8 +1,8 @@
 
 # 1. How to run program
 
-Make sure you have the latest JDK installed
-I have Java version 18.0
+Make sure you have the latest JDK installed;
+I have Java version 18.0.
 
 After cloning this repository, open this folder with your terminal. For Windows, you can choose to open the folder with CMD (Terminal) by right-clicking on it and selecting terminal.
 
