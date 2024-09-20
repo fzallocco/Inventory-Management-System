@@ -1,44 +1,41 @@
-import java.util.*;
-class InventoryManagementTest {
-  public static void main(String[] args){
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
-        System.out.println("This is the Java Inventory System Management");
-        System.out.println("Enter item's name, price, and quantity in the following order below:\n");
-        InventoryManagement ivm = new InventoryManagement();
-        InventoryManagement.Inventory intmg = ivm.new Inventory();
+public class InventoryManagementTest {
 
-        Scanner scn = new Scanner(System.in);
-        System.out.println("Enter new item? Enter any integer or -1 to exit concole");
-        int userInput = scn.nextInt();
-        while(userInput != -1 ){
-          System.out.println("item's name: \n");
-          String itemName = scn.next();
-          System.out.println("item's price: \n");
-          double itemPrice = scn.nextDouble();
-          System.out.println("item's quantity: \n");
-          int itemQuantity = scn.nextInt();
-          intmg.addItem(itemName, itemPrice, itemQuantity);
-          System.out.println("item added to inventory");
-          System.out.println("Enter new item? Enter any integer or -1 to exit concole\n");
-          userInput = scn.nextInt();
+    public static void main(String[] args) throws InterruptedException {
+        // Create an instance of InventoryManagement and its Inventory
+        InventoryManagement inventoryManagement = new InventoryManagement();
+        InventoryManagement.Inventory inventory = inventoryManagement.new Inventory();
+
+        // Add a sample item to the inventory
+        String itemName = "Laptop";
+        inventory.addItem(itemName, 999.99, 100);
+
+        // Display the initial inventory
+        System.out.println("Initial Inventory:");
+        inventory.displayInventory();
+
+        // Create a thread pool with 100000 threads to simulate 100000 concurrent users
+        int numUsers = 100000;
+        ExecutorService executorService = Executors.newFixedThreadPool(numUsers);
+
+        // Each user will update the quantity of the item in a concurrent manner
+        for (int i = 0; i < numUsers; i++) {
+            int finalQuantity = i + 1; // New quantity for the item
+            System.out.println("thread number: "+finalQuantity);
+            executorService.submit(() -> {
+                inventory.updateItemQuantity(itemName, finalQuantity);
+            });
         }
-        //adding items to inventory management system
-        /*intmg.addItem("Laptop", 999.99, 5);
-        intmg.addItem("Mouse", 19.99, 10);
-        intmg.addItem("Keyboard", 49.99, 7);*/
 
-        // Displaying inventory
-        intmg.displayInventory();
+        // Shutdown the executor and wait for all tasks to complete
+        executorService.shutdown();
+        executorService.awaitTermination(1, TimeUnit.MINUTES);
 
-        // Updating item's quantity
-        /*intmg.updateItemQuantity("Mouse", 8);
-
-        // Updating item's price
-        intmg.updateItemPrice("Mouse", 2.75);
-        intmg.removeItem("bananas");*/
-
-        // Displaying updated inventory
-        /*intmg.displayInventory();*/
-
-  }//end of main
-}//end of class
+        // Display the inventory after all updates
+        System.out.println("Inventory after 100,000 concurrent updates:");
+        inventory.displayInventory();
+    }
+}
